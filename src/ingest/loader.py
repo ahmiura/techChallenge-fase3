@@ -16,13 +16,25 @@ class FlightDataLoader:
         # Lendo colunas essenciais para economizar memória
         cols = [
             'YEAR', 'MONTH', 'DAY', 'DAY_OF_WEEK', 'AIRLINE', 
-            'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 'DISTANCE', 
+            'FLIGHT_NUMBER', 'ORIGIN_AIRPORT', 'DESTINATION_AIRPORT', 
             'SCHEDULED_DEPARTURE', 'DEPARTURE_DELAY', 'ARRIVAL_DELAY', 
-            'CANCELLED', 'DIVERTED', 'FLIGHT_NUMBER'
+            'CANCELLED', 'DIVERTED', 'DISTANCE', 'AIR_TIME', 
+            'TAXI_IN', 'TAXI_OUT',
+            # Adicionando colunas de motivo de atraso para análise descritiva
+            'AIR_SYSTEM_DELAY', 'SECURITY_DELAY', 'AIRLINE_DELAY', 
+            'LATE_AIRCRAFT_DELAY', 'WEATHER_DELAY',
+            # Colunas úteis para análise de eficiência e horários de chegada
+            'SCHEDULED_TIME', 'ELAPSED_TIME', 'SCHEDULED_ARRIVAL'
         ]
         
+        # Define tipos explicitamente para evitar DtypeWarning e inconsistências
+        dtype_map = {
+            'ORIGIN_AIRPORT': str,
+            'DESTINATION_AIRPORT': str
+        }
+
         try:
-            self.df = pd.read_csv(self.file_path, usecols=cols)
+            self.df = pd.read_csv(self.file_path, usecols=cols, dtype=dtype_map, low_memory=False)
             print(f"📊 Quantidade original de linhas no arquivo: {self.df.shape[0]}")
             
             # Filtros iniciais de consistência

@@ -1,8 +1,9 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
 from typing import List
 import matplotlib.pyplot as plt 
+from src.utils.mlflow_client import log_metric
 
 
 class SupervisedModeler:
@@ -22,6 +23,18 @@ class SupervisedModeler:
         model_instance.fit(self.X_train, self.y_train)
         preds = model_instance.predict(self.X_test)
         
+        # Calcula métricas
+        acc = accuracy_score(self.y_test, preds)
+        prec = precision_score(self.y_test, preds, zero_division=0)
+        rec = recall_score(self.y_test, preds, zero_division=0)
+        f1 = f1_score(self.y_test, preds, zero_division=0)
+
+        # Loga no MLflow (se houver run ativa)
+        log_metric("accuracy", acc)
+        log_metric("precision", prec)
+        log_metric("recall", rec)
+        log_metric("f1", f1)
+
         print(f"📊 Relatório para {model_name}:")
         print(classification_report(self.y_test, preds))
         

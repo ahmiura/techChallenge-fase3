@@ -1,0 +1,8 @@
+run_id,run_name,experiment_name,model,class_weight,sampling,n_estimators,accuracy,precision,recall,f1,roc_auc,search_time_sec
+d55209a0d4f04383a21b9f445eeb6544,xgboost_random_search,flight_delay_tuning_xgboost,,,,300,,0.29703763010408324,0.5287913340935005,0.38039577565877164,0.6888802820606709,129.55347156524658
+d748cba2f48d4577841839936dbabc91,xgboost_random_search,flight_delay_tuning_xgboost,,,,300,,0.2568033729398237,0.6068840579710145,0.36089415566927013,0.684532846869051,113.39462327957153
+91a17c2bfe974b88a945b35dc9bc56d0,rf_oversample_small,flight_delay_tuning,RandomForest,,oversample,,0.6835,,,,,
+6bc26cc5e8d044fb9e228a1bd089d5e7,rf_balanced_small,flight_delay_tuning,RandomForest,balanced,,,0.706525,,,,,
+443a50d962984b6799634a4ca0a913e4,rf_balanced_small,flight_delay_tuning,RandomForest,balanced,,,0.800675,,,,,
+8d435d7fde454244ad83ac93e73e601c,rf_balanced_small,flight_delay_tuning,RandomForest,balanced,,,0.661975,,,,,
+1ceb0dfd7aa34f0884ec39a6aef6159e,rf_balanced,flight_delay_tuning,,,,,,,,,,

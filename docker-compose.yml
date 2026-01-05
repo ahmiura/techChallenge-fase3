@@ -20,7 +20,9 @@ services:
     image: ghcr.io/mlflow/mlflow:v2.10.0
     ports:
       - "5000:5000"
-    command: mlflow server --backend-store-uri sqlite:////mlruns/mlflow.db --default-artifact-root /mlruns --host 0.0.0.0
+    # Usa um caminho relativo para o artifact-root para que o servidor sirva os arquivos via HTTP,
+    # em vez de retornar um URI file:// absoluto que quebra em clientes remotos (como o notebook).
+    command: mlflow server --backend-store-uri sqlite:////mlruns/mlflow.db --default-artifact-root mlruns --host 0.0.0.0
     volumes:
       - ./mlruns:/mlruns
 
@@ -35,11 +37,16 @@ services:
       - AIRFLOW__CORE__LOAD_EXAMPLES=${AIRFLOW__CORE__LOAD_EXAMPLES}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - TARGET_DATABASE_CONN=${TARGET_DATABASE_CONN}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW__WEBSERVER__SECRET_KEY}
+      - SAMPLE_SIZE=${SAMPLE_SIZE}
+      - MAX_TRAIN_ROWS=${MAX_TRAIN_ROWS}
+      - GIT_PYTHON_REFRESH=${GIT_PYTHON_REFRESH}
     volumes:
       - ./dags:/opt/airflow/dags
       - ./src:/opt/airflow/dags/src
       - ./data:/opt/airflow/data
       - ./requirements.txt:/requirements.txt
+      - ./mlruns:/mlruns
     depends_on:
       - postgres
       - airflow-scheduler
@@ -53,13 +60,40 @@ services:
       - AIRFLOW__CORE__LOAD_EXAMPLES=${AIRFLOW__CORE__LOAD_EXAMPLES}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - TARGET_DATABASE_CONN=${TARGET_DATABASE_CONN}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW__WEBSERVER__SECRET_KEY}
+      - SAMPLE_SIZE=${SAMPLE_SIZE}
+      - MAX_TRAIN_ROWS=${MAX_TRAIN_ROWS}
+      - GIT_PYTHON_REFRESH=${GIT_PYTHON_REFRESH}
     volumes:
       - ./dags:/opt/airflow/dags
       - ./src:/opt/airflow/dags/src
       - ./data:/opt/airflow/data
       - ./requirements.txt:/requirements.txt
+      - ./mlruns:/mlruns
     depends_on:
       - postgres
+
+  notebook:
+    build: .
+    entrypoint: /bin/bash -c "jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token=''"
+    ports:
+      - "8888:8888"
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - TARGET_DATABASE_CONN=${TARGET_DATABASE_CONN}
+      - SAMPLE_SIZE=${SAMPLE_SIZE}
+      - MAX_TRAIN_ROWS=${MAX_TRAIN_ROWS}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/dags/src
+      - ./data:/opt/airflow/data
+      - ./requirements.txt:/requirements.txt
+      - ./mlruns:/mlruns
+      - ./notebooks:/opt/airflow/notebooks
+    depends_on:
+      - postgres
+      - mlflow
 
   airflow-init:
     build: .
